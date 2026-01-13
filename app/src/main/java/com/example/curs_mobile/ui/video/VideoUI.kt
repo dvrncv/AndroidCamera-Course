@@ -88,7 +88,6 @@ fun VideoScreenUI(
         )
 
         VideoRecordButton(
-            isRecording = isRecording,
             animationValue = animationBorder.value,
             onToggle = onRecordToggle,
             modifier = Modifier
@@ -123,7 +122,6 @@ fun VideoScreenUI(
 
 @Composable
 fun VideoRecordButton(
-    isRecording: Boolean,
     animationValue: Float,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier
