@@ -30,10 +30,11 @@ class PermissionsState(
     }
 
     fun launchPermissionRequest() {
+        updatePermissionsState()
         launcher.launch(permissions.toTypedArray())
     }
 
-    internal fun updatePermissionsState() {
+    fun updatePermissionsState() {
         allPermissionsGranted = checkAllPermissionsGranted()
     }
 }

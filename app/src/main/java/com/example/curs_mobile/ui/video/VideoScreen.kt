@@ -47,11 +47,10 @@ fun VideoScreen(
         }
     }
 
-    LaunchedEffect(currentRoute, arePermissionsGranted) {
+    LaunchedEffect(currentRoute) {
         if (currentRoute == VIDEO_ROUTE) {
-            if (!arePermissionsGranted) {
-                permissionsState.launchPermissionRequest()
-            }
+            permissionsState.updatePermissionsState()
+            permissionsState.launchPermissionRequest()
         }
     }
 

@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.MediaStore
 import androidx.annotation.OptIn
-import androidx.annotation.RequiresPermission
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
@@ -20,6 +19,7 @@ import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPersistentRecording::class)
 class VideoViewModel : ViewModel() {
     
     private var meteringFactory: SurfaceOrientedMeteringPointFactory? = null
@@ -46,7 +47,7 @@ class VideoViewModel : ViewModel() {
     private val durationState = MutableStateFlow(0L)
     val recordingDuration: StateFlow<Long> = durationState.asStateFlow()
 
-    fun initializePreviewView(view: androidx.camera.view.PreviewView) {
+    fun initializePreviewView(view: PreviewView) {
         meteringFactory = SurfaceOrientedMeteringPointFactory(
             view.width.toFloat(),
             view.height.toFloat()
@@ -107,13 +108,14 @@ class VideoViewModel : ViewModel() {
         }
     }
 
-    @OptIn(ExperimentalPersistentRecording::class)
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     fun toggleRecording(context: Context) {
         if (currentRecording != null) {
             stopRecording()
         } else {
-            startRecording(context)
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) 
+                == PackageManager.PERMISSION_GRANTED) {
+                startRecording(context)
+            }
         }
     }
 
@@ -125,7 +127,6 @@ class VideoViewModel : ViewModel() {
         }
     }
 
-    @OptIn(ExperimentalPersistentRecording::class)
     private fun startRecording(context: Context) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) 
             != PackageManager.PERMISSION_GRANTED) {
@@ -148,25 +149,23 @@ class VideoViewModel : ViewModel() {
                 ?.prepareRecording(context, outputOptions)
                 ?.asPersistentRecording()
                 ?.withAudioEnabled()
-                ?.start(ContextCompat.getMainExecutor(context), ::processRecordingEvent)
+                ?.start(ContextCompat.getMainExecutor(context)) { event ->
+                    when (event) {
+                        is VideoRecordEvent.Start -> recordingState.value = true
+                        is VideoRecordEvent.Status -> {
+                            durationState.value = event.recordingStats.recordedDurationNanos / 1_000_000
+                        }
+                        is VideoRecordEvent.Finalize -> {
+                            recordingState.value = false
+                            if (event.hasError()) {
+                                currentRecording?.close()
+                                currentRecording = null
+                            }
+                        }
+                    }
+                }
                 ?.also { currentRecording = it }
         } catch (e: SecurityException) {
-        }
-    }
-
-    private fun processRecordingEvent(event: VideoRecordEvent) {
-        when (event) {
-            is VideoRecordEvent.Start -> recordingState.value = true
-            is VideoRecordEvent.Status -> {
-                durationState.value = event.recordingStats.recordedDurationNanos / 1_000_000
-            }
-            is VideoRecordEvent.Finalize -> {
-                recordingState.value = false
-                if (event.hasError()) {
-                    currentRecording?.close()
-                    currentRecording = null
-                }
-            }
         }
     }
 

@@ -26,13 +26,16 @@ fun GalleryScreen(
     val permissionsState = rememberPermissionsState(getMediaPermissions())
     val arePermissionsGranted = permissionsState.allPermissionsGranted
 
-    LaunchedEffect(currentRoute, arePermissionsGranted) {
+    LaunchedEffect(currentRoute) {
         if (currentRoute == GALLERY_ROUTE) {
-            if (!arePermissionsGranted) {
-                permissionsState.launchPermissionRequest()
-            } else {
-                viewModel.loadMedia(context)
-            }
+            permissionsState.updatePermissionsState()
+            permissionsState.launchPermissionRequest()
+        }
+    }
+
+    LaunchedEffect(currentRoute, arePermissionsGranted) {
+        if (currentRoute == GALLERY_ROUTE && arePermissionsGranted) {
+            viewModel.loadMedia(context)
         }
     }
 

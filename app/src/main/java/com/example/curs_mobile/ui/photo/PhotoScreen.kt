@@ -44,11 +44,10 @@ fun PhotoScreen(
         }
     }
 
-    LaunchedEffect(currentRoute, arePermissionsGranted) {
+    LaunchedEffect(currentRoute) {
         if (currentRoute == PHOTO_ROUTE) {
-            if (!arePermissionsGranted) {
-                permissionsState.launchPermissionRequest()
-            }
+            permissionsState.updatePermissionsState()
+            permissionsState.launchPermissionRequest()
         }
     }
 
