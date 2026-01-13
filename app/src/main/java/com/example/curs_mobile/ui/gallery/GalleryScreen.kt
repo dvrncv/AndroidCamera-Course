@@ -61,7 +61,7 @@ fun GalleryScreen(
         currentRoute = currentRoute,
         onMediaClick = { viewModel.openMedia(it) },
         onClose = { viewModel.closeFullscreen() },
-        onDelete = { viewModel.removeSelected(context) },
+        onDelete = { viewModel.removeMedia(context) },
         onNavigate = onNavigate
     )
 }

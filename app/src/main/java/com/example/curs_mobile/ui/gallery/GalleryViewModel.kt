@@ -39,24 +39,6 @@ class GalleryViewModel : ViewModel() {
         }
     }
 
-    fun removeMedia(context: Context, resource: MediaResource) {
-        viewModelScope.launch {
-            val isDeleted = withContext(Dispatchers.IO) {
-                MediaRepository(context).deleteMedia(resource)
-            }
-            if (isDeleted) {
-                updateMediaListAfterDeletion(resource)
-            }
-        }
-    }
-
-    private fun updateMediaListAfterDeletion(resource: MediaResource) {
-        mediaListState.value = mediaListState.value.filter { it.uri != resource.uri }
-        if (selectedMediaState.value?.uri == resource.uri) {
-            closeFullscreen()
-        }
-    }
-
     fun openMedia(resource: MediaResource) {
         selectedMediaState.value = resource
         isFullscreenState.value = true
@@ -67,7 +49,17 @@ class GalleryViewModel : ViewModel() {
         selectedMediaState.value = null
     }
 
-    fun removeSelected(context: Context) {
-        selectedMediaState.value?.let { removeMedia(context, it) }
+    fun removeMedia(context: Context) {
+        val resource = selectedMediaState.value ?: return
+        
+        viewModelScope.launch {
+            val isDeleted = withContext(Dispatchers.IO) {
+                MediaRepository(context).deleteMedia(resource)
+            }
+            if (isDeleted) {
+                mediaListState.value = mediaListState.value.filter { it.uri != resource.uri }
+                closeFullscreen()
+            }
+        }
     }
 }
