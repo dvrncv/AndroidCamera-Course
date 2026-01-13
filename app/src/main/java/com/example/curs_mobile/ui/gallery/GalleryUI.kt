@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -241,8 +242,6 @@ fun FullscreenMediaView(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val buttonPadding = Modifier.padding(top = 64.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
-    
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -251,12 +250,7 @@ fun FullscreenMediaView(
     ) {
         MediaDisplay(
             resource = resource,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    top = 32.dp,
-                    bottom = if (resource is MediaResource.Video) 50.dp else 0.dp
-                ),
+            modifier = Modifier.fillMaxSize(),
             isFullscreen = true
         )
 
@@ -264,7 +258,8 @@ fun FullscreenMediaView(
             onClick = onClose,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .then(buttonPadding)
+                .systemBarsPadding()
+                .padding(start = 16.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
@@ -277,7 +272,8 @@ fun FullscreenMediaView(
             onClick = onDelete,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .then(buttonPadding)
+                .systemBarsPadding()
+                .padding(end = 16.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Delete,
@@ -434,6 +430,9 @@ private fun VideoPlayer(uri: Uri, modifier: Modifier = Modifier, showController:
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 useController = showController
+                resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT
+                controllerHideOnTouch = true
+                controllerShowTimeoutMs = 3000
             }
         },
         modifier = modifier
