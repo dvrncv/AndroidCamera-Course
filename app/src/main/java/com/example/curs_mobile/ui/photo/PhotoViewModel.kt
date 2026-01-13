@@ -11,6 +11,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
@@ -23,7 +24,7 @@ class PhotoViewModel : ViewModel() {
     private var previewInstance: Preview? = null
     private var imageCapture: ImageCapture? = null
 
-    fun initializePreviewView(view: androidx.camera.view.PreviewView) {
+    fun initializePreviewView(view: PreviewView) {
         meteringFactory = SurfaceOrientedMeteringPointFactory(
             view.width.toFloat(),
             view.height.toFloat()

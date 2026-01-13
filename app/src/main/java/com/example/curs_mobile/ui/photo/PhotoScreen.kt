@@ -1,6 +1,5 @@
 package com.example.curs_mobile.ui.photo
 
-import android.Manifest
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.compose.runtime.Composable
@@ -13,14 +12,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.example.curs_mobile.util.getPhotoPermissions
+import com.example.curs_mobile.util.rememberPermissionsState
 import kotlinx.coroutines.delay
 import java.util.UUID
 
 private const val PHOTO_ROUTE = "photo"
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PhotoScreen(
     currentRoute: String,
@@ -30,9 +28,7 @@ fun PhotoScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val permissionsState = rememberMultiplePermissionsState(
-        listOf(Manifest.permission.CAMERA)
-    )
+    val permissionsState = rememberPermissionsState(getPhotoPermissions())
     val arePermissionsGranted = permissionsState.allPermissionsGranted
 
     var cameraSelector by remember { mutableStateOf(CameraSelector.DEFAULT_BACK_CAMERA) }
@@ -51,7 +47,7 @@ fun PhotoScreen(
     LaunchedEffect(currentRoute, arePermissionsGranted) {
         if (currentRoute == PHOTO_ROUTE) {
             if (!arePermissionsGranted) {
-                permissionsState.launchMultiplePermissionRequest()
+                permissionsState.launchPermissionRequest()
             }
         }
     }
