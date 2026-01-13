@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">curs_mobile</string>
+    <string name="camera">Camera</string>
+    <string name="photo">Photo</string>
+    <string name="video">Video</string>
+    <string name="gallery">Gallery</string>
+    <string name="capture_photo">Capture Photo</string>
+    <string name="capture_video">Capture Video</string>
+</resources>
